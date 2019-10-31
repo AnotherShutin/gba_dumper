@@ -1,0 +1,52 @@
+# Project: Project1
+# Makefile created by Dev-C++ 5.7.1
+
+CPP      = g++.exe
+CC       = gcc.exe
+WINDRES  = windres.exe
+OBJ      = dump_core.o gba_dumper.o hashing.o input.o output.o rom_core.o searching.o translate.o utils/utils.o
+LINKOBJ  = dump_core.o gba_dumper.o hashing.o input.o output.o rom_core.o searching.o translate.o utils/utils.o
+LIBS     = -L"E:/Dev-Cpp/MinGW64/lib" -L"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
+INCS     = -I"E:/Dev-Cpp/MinGW64/include" -I"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include"
+CXXINCS  = -I"E:/Dev-Cpp/MinGW64/include" -I"E:/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include" -I"E:/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.8.1/include/c++"
+BIN      = Project1.exe
+CXXFLAGS = $(CXXINCS) -fpermissive
+CFLAGS   = $(INCS) -fpermissive -fpermissive
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+dump_core.o: dump_core.c
+	$(CPP) -c dump_core.c -o dump_core.o $(CXXFLAGS)
+
+gba_dumper.o: gba_dumper.c
+	$(CPP) -c gba_dumper.c -o gba_dumper.o $(CXXFLAGS)
+
+hashing.o: hashing.c
+	$(CPP) -c hashing.c -o hashing.o $(CXXFLAGS)
+
+input.o: input.c
+	$(CPP) -c input.c -o input.o $(CXXFLAGS)
+
+output.o: output.c
+	$(CPP) -c output.c -o output.o $(CXXFLAGS)
+
+rom_core.o: rom_core.c
+	$(CPP) -c rom_core.c -o rom_core.o $(CXXFLAGS)
+
+searching.o: searching.c
+	$(CPP) -c searching.c -o searching.o $(CXXFLAGS)
+
+translate.o: translate.c
+	$(CPP) -c translate.c -o translate.o $(CXXFLAGS)
+
+utils/utils.o: utils/utils.c
+	$(CPP) -c utils/utils.c -o utils/utils.o $(CXXFLAGS)

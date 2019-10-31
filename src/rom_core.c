@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sstream>
+#include <fstream>
+#include <string>
+
+#include <iostream>
+
+using namespace std;
+
 #include "../include/rom_core.h"
 #include "../include/utils/utils.h"
 
@@ -98,25 +106,21 @@ int create_translation_file( char *filename )
 */
 int read_translation_file( char *filename )
 {
-	FILE *translation_file 				= NULL;
 
 	char readable 						= 0;
-	char *cur_line						= NULL;
+	string cur_line2	 = "";
 
 	unsigned char byte_hex[ 2 ]			= { 0 };
 	unsigned char byte_literal[ 4 ]		= { 0 };
 
 	size_t cur_len 						= 0;
 
-	if( filename == NULL )
-		return -1;
+	ifstream dump_file(filename);
 
-	translation_file = fopen( filename, "r" );
-	if( translation_file == NULL )
-		return -1;
-
-	while( getline( &cur_line, &cur_len, translation_file ) != -1 )
+	while( getline( dump_file, cur_line2 ) )
 	{
+		char *cur_line = new char[cur_line2.length() + 1];
+        strcpy(cur_line, cur_line2.c_str());
 		sscanf( cur_line, "%s : %c", byte_literal, &readable );
 
 		if( -1 == byte_literal_to_hex_value( byte_hex, (char*)byte_literal, 4 ) )
@@ -135,12 +139,7 @@ int read_translation_file( char *filename )
 		readable = 0;
 	}
 
-	if( cur_line != NULL )
-	{
-		free( cur_line );
-	}
-
-	fclose( translation_file );
+	dump_file.close();
 
 	return 0;
 }

@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sstream>
+#include <fstream>
+#include <string>
+
+#include <iostream>
+
+using namespace std;
+
+
 #include "../include/dump_core.h"
 #include "../include/utils/utils.h"
 
@@ -13,31 +22,25 @@
 */
 int get_dump_amount_of_lines( dump_file *dump )
 {
-	FILE *dump_file 					= NULL;
-
-	char *cur_line						= NULL;
-	size_t cur_len 						= 0;
-
-	unsigned long amount_of_lines		= 0;
-
+	
 	if( dump == NULL || dump->dump_path == NULL )
 		return -1;
 
-	dump_file = fopen( dump->dump_path, "r" );
-	if( dump_file == NULL )
-		return -1;
+	string cur_line	 = "";
+	size_t cur_len 	= 0;
 
-	while( getline( &cur_line, &cur_len, dump_file ) != -1 )
+	unsigned long amount_of_lines	= 0;
+
+	ifstream dump_file(dump->dump_path);
+
+
+	while( getline( dump_file, cur_line ) )
 	{
 		amount_of_lines++;
 	}
+	
+	dump_file.close();
 
-	if( cur_line != NULL)
-	{
-		free( cur_line );
-	}
-
-	fclose( dump_file );
 
 	dump->rom_length 			= amount_of_lines * BYTES_PER_DUMP_LINE;
 	dump->translated_length 	= amount_of_lines * TEXT_PER_DUMP_LINE;
@@ -54,9 +57,11 @@ int get_dump_amount_of_lines( dump_file *dump )
 */
 int read_dump_file( dump_file *dump )
 {
-	FILE *dump_file 																	= NULL;
+	string cur_line2	 = "";
+	size_t cur_len 	= 0;
 
-	size_t cur_len 																		= 0;
+	unsigned long amount_of_lines	= 0;
+
 
 	unsigned char address[ ADDRESS_PER_DUMP_LINE ]										= { 0 };
 	unsigned char byte_literal[ BYTES_PER_DUMP_LINE * 2 + SPACES_PER_BYTE_DUMP_LINE ] 	= { 0 };
@@ -65,17 +70,16 @@ int read_dump_file( dump_file *dump )
 
 	unsigned long cur_rom_buffer_pos													= 0;
 
-	char *cur_line																		= NULL;
 
 	if( dump == NULL || dump->dump_path == NULL || dump->rom_buffer == NULL || dump->translated_buffer == NULL )
 		return -1;	
 
-	dump_file = fopen( dump->dump_path, "r" );
-	if( dump_file == NULL )
-		return -1;
+	ifstream dump_file(dump->dump_path);
 
-	while( getline( &cur_line, &cur_len, dump_file ) != -1 )
+	while( getline( dump_file, cur_line2 ) )
 	{
+		char *cur_line = new char[cur_line2.length() + 1];
+        strcpy(cur_line, cur_line2.c_str());
 		//Line format is:  0xDEADBEEF |	2E000000 EA00...	| text... 
 		//An example line: 0x003DD120 |	800080FF 81007FFF 81007FFF 82007EFF 82007EFF 82007EFF 83007DFF 83007DFF 	|   A A B B B C C 
 		sscanf( cur_line, "%s |\t%71c \t|%17c", address, byte_literal, translated_literal );
@@ -91,14 +95,10 @@ int read_dump_file( dump_file *dump )
 
 		memset( translated_literal, 0, TEXT_PER_DUMP_LINE + 2 );
 	}
-
-	if( cur_line != NULL )
-	{
-		free( cur_line );
-	}
-
-	fclose( dump_file );
-
+	
+	
+	dump_file.close();
+	
 	return 0;
 }
 
@@ -186,11 +186,10 @@ int write_dump_strings( dump_file *dump, unsigned long start_address, unsigned l
 int read_and_translate_dump_strings( dump_file *dump, char* strings_file_path, unsigned long start_address, 
 	unsigned long end_address, char* rom_string_break )
 {
-	FILE *strings_file 							= NULL;
+	string cur_line2	 = "";
 
 	unsigned char byte_rom_string_break[ 2 ]	= { 0 };
 
-	char *cur_line								= NULL;
 
 	size_t cur_len 								= 0;
 	ssize_t read_len 							= 0;
@@ -204,17 +203,18 @@ int read_and_translate_dump_strings( dump_file *dump, char* strings_file_path, u
 		return -1;
 
 	byte_literal_to_hex_value( byte_rom_string_break, rom_string_break, 2 * 2 );
-
-	strings_file = fopen( strings_file_path, "r" );
-	if( strings_file == NULL )
-		return -1;
+	
+    ifstream strings_file(dump->dump_path);
+	
 
 	//The purpose of these nested loops is to first loop through all the strings in the strings file, 
 	//and then loop through the dump, writing characters back until we reach a break. Due to the fact,
 	//that we are modifying text pointers in the rom's memory, we need to ensure we keep the size of all elements.
 	//This includes padding out strings that are too short when passed in.
-	while( (read_len = getline( &cur_line, &cur_len, strings_file ) ) != -1 )
+	while( getline( strings_file,cur_line2 ) )
 	{
+		char *cur_line = new char[cur_line2.length() + 1];
+        strcpy(cur_line, cur_line2.c_str());
 		current_write_position = 0;
 
 		while( !( dump->rom_buffer[ start_address + cur_dump_offset ] == byte_rom_string_break[ 0 ] && 
@@ -231,17 +231,13 @@ int read_and_translate_dump_strings( dump_file *dump, char* strings_file_path, u
 
 			cur_dump_offset += 2;
 		}
+		delete [] cur_line;
 
 		//we increment again to skip over the break characters that broke the inner while loop.
 		cur_dump_offset += 2;
 	}
 
-	if( cur_line != NULL )
-	{
-		free( cur_line );
-	}
-
-	fclose( strings_file );
+	strings_file.close( );
 
 	return 0;
 }

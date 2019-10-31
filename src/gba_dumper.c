@@ -1,6 +1,10 @@
 #include <errno.h>
 #include <limits.h>
 
+#include <iostream>
+
+using namespace std;
+
 #ifndef COMMON_H
 #define COMMON_H
 	#include "../include/common.h"
@@ -93,12 +97,16 @@ int main( int argc, char** argv )
 			if( matches.amount_of_matches > 0 )
 			{
 				size_t file_path_len =						 0;
+				
+				
+				string inLine="";
 
-				char *translate_file_path;
 
 				printf("Attempt to generate a translation file? (Yes, type file name. No, type nothing):\n");
-				getline( &translate_file_path, &file_path_len, stdin );
-
+				cin>> inLine;
+				char *translate_file_path = new char[inLine.length() + 1];
+        		strcpy(translate_file_path, inLine.c_str());
+        		
 				//Strip newline characters from input name
 				//https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input/28462221#28462221
 				translate_file_path[ strcspn( translate_file_path, "\r\n" ) ] = 0;
@@ -127,13 +135,16 @@ int main( int argc, char** argv )
 
 							size_t match_number_length			= 0;
 
-							char *match_number_selected;
 							char *temp_end_for_conversion;
 							errno = 0;
 
 							int match_set_to_use				= 0;
+							
+							string inLine2="";
 
-							getline( &match_number_selected, &match_number_length, stdin );
+							cin>> inLine2;
+							char *match_number_selected = new char[inLine2.length() + 1];
+        					strcpy(match_number_selected, inLine2.c_str());
 
 							long temp_value = strtol( match_number_selected, &temp_end_for_conversion, 10);
 							if( temp_end_for_conversion != match_number_selected && errno != ERANGE && 
