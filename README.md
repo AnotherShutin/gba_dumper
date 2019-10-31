@@ -1,5 +1,14 @@
 # gba_dumper
 
+This fork of gba_dumper is written by rumba from the romhackingdotnet discord with the following changes.
+
+```
+Replaced no standard c functions with c++ functions
+getline(char, char,file*) with getline(ifstream,string)
+and getline(char *, char *, stdin)
+with cin>>string
+```
+
 ![Metroid Intro Changed](https://i.imgur.com/rI0fjlz.png)
 
 gba_dumper is a set of utilities designed to make text modifications for Game Boy Advanced (gba) roms easier. Since gba games don't use ASCII and instead each use their own homebrew-encoding, gba_dumper streamlines the approach of translating rom byte-codes into human-readable characters.
